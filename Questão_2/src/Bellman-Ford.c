@@ -1,13 +1,21 @@
 #include "Bellman-Ford.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <limits.h>
 #include <time.h>
 
-// Função para verificar se o movimento entre dois estados é válido
+#define MAX_STATES 81  // Substitua com o número de estados que seu sistema tiver
+#define NUM_PINS 3  // Definindo número de pinos
+// #define NUM_DISKS 4  // Definindo número de discos
+
+// Estrutura Grafo - aqui você define como cada estado é representado
+
+
+// Função que calcula a validade de uma movimentação entre dois estados
 int movimento_valido(Grafo *config1, Grafo *config2) {
     int var_count = 0, diff_idx = -1;
     int valido = 1;
-
+    
     for (int i = 0; i < NUM_DISKS && var_count <= 1; ++i) {
         if (config1->estado[i] != config2->estado[i]) {
             var_count++;
@@ -16,9 +24,9 @@ int movimento_valido(Grafo *config1, Grafo *config2) {
     }
 
     if (var_count > 1) {
-        valido = 0; // Movimento inválido
+        valido = 0; // Não válido se houver mais de 1 diferença
     } else {
-        // Verificar se o movimento segue as regras (não ultrapassa posições permitidas)
+        // Se a mudança for válida entre os pinos
         for (int i = 0; i < NUM_PINS; i++) {
             if (i != diff_idx && 
                 ((config1->estado[i] == config1->estado[diff_idx] && i < diff_idx) ||
@@ -31,7 +39,7 @@ int movimento_valido(Grafo *config1, Grafo *config2) {
     return valido;
 }
 
-// Função para gerar o grafo representando todos os estados possíveis e as transições válidas entre eles
+// Função para gerar o grafo, representando o estado dos discos nos pinos
 void gerar_grafo(Grafo *grafo, int mat_adj[][MAX_STATES]) {
     for (int i = 0; i < MAX_STATES; i++) {
         int num = i;
@@ -41,41 +49,65 @@ void gerar_grafo(Grafo *grafo, int mat_adj[][MAX_STATES]) {
         }
     }
 
-    // Matriz de adjacência
+    // Preencher a matriz de adjacência com as movimentações válidas
     for (int x = 0; x < MAX_STATES; x++) {
         for (int y = 0; y < MAX_STATES; y++) {
             if (movimento_valido(&grafo[x], &grafo[y])) {
-                mat_adj[x][y] = 1;  // Movimento válido
+                mat_adj[x][y] = 1; // Movimento válido
             } else {
-                mat_adj[x][y] = 0;  // Movimento inválido
+                mat_adj[x][y] = 0; // Movimento inválido
             }
         }
     }
 }
 
-// Algoritmo Bellman-Ford para encontrar o caminho mínimo em um grafo
-void bellman_ford(int inicio, int fim, int prev[], int dist[], int mat_adj[][MAX_STATES]) {
+// Algoritmo de Bellman-Ford para encontrar o menor caminho
+void bellman_ford(int inicio, int prev[], int dist[], int mat_adj[][MAX_STATES]) {
     // Inicializar distâncias e predecessores
     for (int i = 0; i < MAX_STATES; i++) {
         prev[i] = -1;
-        dist[i] = INT_MAX;
+        dist[i] = INT_MAX;  // Inicialize as distâncias com INT_MAX
     }
-    dist[inicio] = 0;
+    dist[inicio] = 0;  // A distância inicial é 0 para o nó de início
 
     // Relaxação das arestas para MAX_STATES - 1 vezes
     for (int i = 1; i < MAX_STATES; i++) {
+        // Flag para verificar se houve atualização nas distâncias
+        int atualizado = 0;
+        
         for (int u = 0; u < MAX_STATES; u++) {
             for (int v = 0; v < MAX_STATES; v++) {
-                if (mat_adj[u][v] != 0 && dist[u] + mat_adj[u][v] < dist[v]) {
+                // Se existe aresta e a distância pode ser atualizada
+                if (mat_adj[u][v] != 0 && dist[u] != INT_MAX && dist[u] + mat_adj[u][v] < dist[v]) {
                     dist[v] = dist[u] + mat_adj[u][v];
                     prev[v] = u;
+                    atualizado = 1;  // Houve atualização
                 }
             }
         }
+        
+        // Se não houve atualização nas distâncias, o loop pode ser interrompido antecipadamente
+        if (!atualizado) {
+            break;
+        }
     }
+
+    // Verifique se existe caminho negativo em ciclos (opcional, só para Bellman-Ford)
+    for (int u = 0; u < MAX_STATES; u++) {
+        for (int v = 0; v < MAX_STATES; v++) {
+            if (mat_adj[u][v] != 0 && dist[u] != INT_MAX && dist[u] + mat_adj[u][v] < dist[v]) {
+                printf("Há um ciclo de peso negativo no grafo.\n");
+                return;  // Se encontrar um ciclo negativo, termine a execução
+            }
+        }
+    }
+
+    // Após o fim do algoritmo, dist[] contém a menor distância de cada vértice ao nó inicial
 }
 
-// Função para mostrar o caminho encontrado
+
+
+// Função para exibir o caminho do menor caminho encontrado
 void mostrar_caminho(int inicio, int fim, int prev[], int dist[]) {
     if (dist[fim] == INT_MAX) {
         printf("Nao ha caminho acessivel de %d para %d.\n", inicio, fim);
@@ -88,7 +120,7 @@ void mostrar_caminho(int inicio, int fim, int prev[], int dist[]) {
             atual = prev[atual];
         }
 
-        // Imprimir o caminho no formato de grafo
+        // Imprimir o caminho
         printf("Caminho: \n");
         for (int i = ind - 1; i >= 0; i--) {
             if (i != ind - 1) {
@@ -97,20 +129,15 @@ void mostrar_caminho(int inicio, int fim, int prev[], int dist[]) {
             printf("[%d]", caminho[i]);
         }
         printf("\n");
-
-        // Visualização como grafo com setas
-        printf("\nVisualizando o caminho no formato de grafo:\n");
-        for (int i = ind - 1; i > 0; i--) {
-            printf("(%d) --[Aresta]--> (%d)\n", caminho[i], caminho[i - 1]);
-        }
     }
 }
 
-// Função para medir o tempo do algoritmo
+// Função para medir o tempo da execução
 void medir_tempo() {
     Grafo grafo[MAX_STATES];
     int mat_adj[MAX_STATES][MAX_STATES];
 
+    // Gerar o grafo e a matriz de adjacência
     gerar_grafo(grafo, mat_adj);
 
     int inicio, fim;
@@ -125,14 +152,22 @@ void medir_tempo() {
     clock_t inicio_tempo, fim_tempo;
     inicio_tempo = clock();
 
-    // Executando o Bellman-Ford
-    bellman_ford(inicio, fim, prev, dist, mat_adj);
+    // Executar o algoritmo Bellman-Ford (sem precisar de 'fim' aqui)
+    bellman_ford(inicio, prev, dist, mat_adj);
 
     fim_tempo = clock();
 
+    // Exibir o caminho encontrado
     mostrar_caminho(inicio, fim, prev, dist);
 
     double tempo = (double)(fim_tempo - inicio_tempo) / CLOCKS_PER_SEC;
     printf("Tempo do algoritmo de Bellman-Ford: %f segundos\n", tempo);
 }
+
+
+int main() {
+    medir_tempo();
+    return 0;
+}
+
 
