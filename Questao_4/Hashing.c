@@ -20,36 +20,31 @@ void gerar_dados(Funcionario *dados, int qtd){
 
 }
 
-Funcionario** alocar_tabela(int tamanho_tabela) {
+Tabela_hashing* alocar_tabela(int tamanho_tabela) {
  
-    Funcionario** tabela = (Funcionario**)malloc(tamanho_tabela * sizeof(Funcionario*));
+    
+    Tabela_hashing *tabela = (Tabela_hashing*)calloc(tamanho_tabela, sizeof(Tabela_hashing));
     if (!tabela) {
         
         fprintf(stderr, "Erro ao alocar memória para a tabela hash.\n");
         exit(EXIT_FAILURE);
     }
 
-
-    for (int i = 0; i < tamanho_tabela; i++) {
-        tabela[i] = NULL;
-    }
-
    
     printf("Tabela alocada com sucesso. Tamanho: %d\n", tamanho_tabela);
-    
     return tabela;
 }
 
-void desalocar_tabela(Funcionario** tabela, int tamanho_tabela) {
+void desalocar_tabela(Tabela_hashing* tabela, int tamanho_tabela) {
     for (int i = 0; i < tamanho_tabela; i++) {
-        if (tabela[i]) {
-            free(tabela[i]);
+        if (tabela[i].funcionairo != NULL) {
+            free(tabela[i].funcionairo);
         }
     }
     free(tabela);
 }
 
-Funcionario* alocar_funcionario(const char* matricula, const char* nome, const char* funcao, float salario) {
+Funcionario* alocar_funcionario(char* matricula,char* nome,char* funcao, float salario) {
     Funcionario* novo_funcionario = (Funcionario*)malloc(sizeof(Funcionario));
     if (!novo_funcionario) {
         fprintf(stderr, "Erro ao alocar memória para o funcionário.\n");
@@ -65,112 +60,123 @@ Funcionario* alocar_funcionario(const char* matricula, const char* nome, const c
     return novo_funcionario;
 }
 
-void liberar_funcionario(Funcionario* funcionario) {
-    if (funcionario) {
-        free(funcionario);
-    }
-}
 
-
-int hashing_rotacao(int matricula, int tamanho_vetor) {
+/*Função Hashing: rotação de 2 dígitos para a esquerda depois extrai o 2,
+ 4 6 dígitos e obtenha o resto da divisão pelo tamanho do vetor destino. 
+As colisões devem ser tratadas somando ao resto da divisão o 
+primeiro dígito da matrícula.*/
+int hashing_rotacao(char *matricula, int tamanho_tabela) {
     int resultado_final = 0;
     int valido = 1;
-    char matricula_str[10];
-    sprintf(matricula_str, "%d", matricula);
 
-    int len = strlen(matricula_str);
+    int len = strlen(matricula);// só pra ver se ela ta no tamanho certinho 
     if (len < 6) {
         valido = 0;
     }
 
     if (valido) {
-        char matricula_rotacionada[10];
-        strcpy(matricula_rotacionada, matricula_str + 2);
-        strncat(matricula_rotacionada, matricula_str, 2);
-        int digitos_extraidos = (matricula_rotacionada[1] - '0') + (matricula_rotacionada[3] - '0') + (matricula_rotacionada[5] - '0');
-        int resto = digitos_extraidos % tamanho_vetor;
-        int primeiro_digito = matricula_str[0] - '0';
-        resultado_final = (resto + primeiro_digito) % tamanho_vetor;
-    }
+       char matricula_rotacionada[10]; 
+       strcpy(matricula_rotacionada, matricula + 2);// aqui eu pego a matricula depois dos dois primerios numeros 
+       strncat(matricula_rotacionada , matricula, 2);// aqui eu coloco eles no final 
 
+       int digitos_2_4_6 = (matricula_rotacionada[1] - '0') + (matricula_rotacionada[3] - '0') + (matricula_rotacionada[5] - '0');
+
+       resultado_final = digitos_2_4_6 % tamanho_tabela; 
+
+    }
+     
     return valido ? resultado_final : -1;
 }
 
-int hashing_fole_shift(int matricula, int tamanho_vetor) {
+/*(b) Função Hashing: fole shift com 3 dígitos da seguinte forma: o 1, 3 e  6; 2, 4 e 5, 
+depois obtenha o resto da divisão do resultado pelo tamanho do vetor destino. 
+As colisões devem ser realizadas somando 7 ao valor obtido. */
+int Fole_shift(char *matricula, int tamanho_tabela) {
     int resultado_final = 0;
     int valido = 1;
-    char matricula_str[10];
-    sprintf(matricula_str, "%d", matricula);
 
-    int len = strlen(matricula_str);
+    int len = strlen(matricula); // só conferindo dnv
     if (len < 6) {
         valido = 0;
     }
 
     if (valido) {
-        int grupo1 = (matricula_str[0] - '0') + (matricula_str[2] - '0') + (matricula_str[5] - '0');
-        int grupo2 = (matricula_str[1] - '0') + (matricula_str[3] - '0') + (matricula_str[4] - '0');
-        int resultado = grupo1 + grupo2;
-        int resto = resultado % tamanho_vetor;
-        resultado_final = resto + 7;
+        int digitos1_3_6 = (matricula[0] - '0') + (matricula[2] - '0') + (matricula[5] - '0');
+        int digitos2_4_5 = (matricula[1] - '0') + (matricula[3] - '0') + (matricula[4] - '0');
+        int soma  = digitos1_3_6 + digitos2_4_5;
+        resultado_final = soma % tamanho_tabela;
     }
 
     return valido ? resultado_final : -1;
 }
 
-void inserir_na_tabela_a(Funcionario** tabela, Funcionario* novo_funcionario, int tamanho_tabela) {
-    int matricula_int = atoi(novo_funcionario->matricula); 
-    int indice = hashing_rotacao(matricula_int, tamanho_tabela);  
+void inserir_na_tabela_hashing_rotacao_A(Tabela_hashing *tabela, Funcionario novo_funcionario, int tamanho_tabela) {
+    int posicao_inicial = hashing_rotacao(novo_funcionario.matricula, tamanho_tabela);
+    int incremento = novo_funcionario.matricula[0] - '0';
 
-    
-    while (tabela[indice] != NULL) {
-      
-        indice = (indice + 1) % tamanho_tabela;
-    }
+    int inserido = 0;
+    // inserção foi concluída ou nem 
 
-   
-    tabela[indice] = novo_funcionario;
-}
+    for (int tentativa = 0; tentativa < tamanho_tabela && !inserido; tentativa++) {
+        int posicao = (posicao_inicial + tentativa * incremento) % tamanho_tabela;
 
-void inserir_na_tabela_b(Funcionario** tabela, Funcionario* novo_funcionario, int tamanho_tabela) {
-    int matricula_int = atoi(novo_funcionario->matricula);  
-    int indice = hashing_fole_shift(matricula_int, tamanho_tabela); 
-
-   
-    while (tabela[indice] != NULL) {
-        
-        indice = (indice + 1) % tamanho_tabela;
-    }
-
-  
-    tabela[indice] = novo_funcionario;
-}
-
-void imprimir_estatisticas(Funcionario** tabela, int tamanho_tabela) {
-    int num_entradas = 0;
-    int num_colisoes = 0;
-    int indice_primeiro_ocupado = -1;
-    int indice_ultimo_ocupado = -1;
-
-    for (int i = 0; i < tamanho_tabela; i++) {
-        if (tabela[i] != NULL) {
-            num_entradas++;
-            if (indice_primeiro_ocupado == -1) {
-                indice_primeiro_ocupado = i;
-            }
-            indice_ultimo_ocupado = i;
-
+        if (tabela[posicao].funcionairo == NULL) {
           
-            if (i > 0 && tabela[i - 1] != NULL) {
-                num_colisoes++;
-            }
+            tabela[posicao].funcionairo = alocar_funcionario(novo_funcionario.matricula, novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
+            inserido = 1; //concluída
+        } else {
+            tabela[posicao].colisoes++;
         }
     }
 
+    // Se a tabela estiver cheia
+    if (!inserido) {
+        if (tabela[posicao_inicial].funcionairo != NULL) {
+            free(tabela[posicao_inicial].funcionairo); 
+        }
+        tabela[posicao_inicial].funcionairo = alocar_funcionario(novo_funcionario.matricula, novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
+    }
+}
+void inserir_ashing_fole_shift_B(Tabela_hashing *tabela, Funcionario novo_funcionario, int tamanho_tabela) {
+    int posicao_inicial = hashing_fole_shift(novo_funcionario.matricula, tamanho_tabela);
+    int inserido = 0;
+    // inserção foi concluída ou nem 
+
+    for (int tentativa = 0; tentativa < tamanho_tabela && !inserido; tentativa++) {
+        int posicao = (posicao_inicial + tentativa * 7) % tamanho_tabela;
+
+        if (tabela[posicao].funcionairo == NULL) {
+          
+            tabela[posicao].funcionairo = alocar_funcionario(novo_funcionario.matricula, novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
+            inserido = 1; //concluída
+        } else {
+            tabela[posicao].colisoes++;
+        }
+    }
+
+    // Se a tabela estiver cheia
+    if (!inserido) {
+        if (tabela[posicao_inicial].funcionairo != NULL) {
+            free(tabela[posicao_inicial].funcionairo); 
+        }
+        tabela[posicao_inicial].funcionairo = alocar_funcionario(novo_funcionario.matricula, novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
+    }
+}
+
+
+void imprimir_estatisticas(Tabela_hashing* tabela, int tamanho_tabela) {
+    int num_entradas = 0;
+    int num_colisoes = 0;
+
+    for (int i = 0; i < tamanho_tabela; i++) {
+        if (tabela[i].funcionairo != NULL) {
+           num_entradas ++;
+        }
+        num_colisoes += tabela[i].colisoes;
+    }
+
     printf("Estatísticas da Tabela Hash:\n");
-    printf("Número de entradas: %d\n", num_entradas);
+    printf("Número de oculpação: %d\n", num_entradas);
     printf("Número de colisões: %d\n", num_colisoes);
-    printf("Carga (percentual de ocupação): %.2f%%\n", (float)num_entradas / tamanho_tabela * 100);
-    printf("Índice do primeiro item ocupado: %d\n", indice_primeiro_ocupado);
-    printf("Índice do último item ocupado: %d\n", indice_ultimo_ocupado);
+   
 }

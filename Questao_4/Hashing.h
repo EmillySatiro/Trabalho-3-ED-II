@@ -17,17 +17,31 @@ typedef struct {
    float salario;
 }Funcionario;
 
+typedef struct {
+   Funcionario *funcionairo; 
+   int colisoes; 
+}Tabela_hashing;
+
+#include "Hashing.h"
 
 void gerar_matricula(char *matricula);
-void gerar_dados(Funcionario *dados, int qtd);
-Funcionario** alocar_tabela(int tamanho_tabela);
-void desalocar_tabela(Funcionario** tabela, int tamanho_tabela);
-Funcionario* alocar_funcionario(const char* matricula, const char* nome, const char* funcao, float salario);
-void liberar_funcionario(Funcionario* funcionario);
-int hashing_rotacao(int matricula, int tamanho_vetor);
-int hashing_fole_shift(int matricula, int tamanho_vetor);
-void inserir_na_tabela_a(Funcionario** tabela, Funcionario* novo_funcionario, int tamanho_tabela);
-void inserir_na_tabela_b(Funcionario** tabela, Funcionario* novo_funcionario, int tamanho_tabela);
-void imprimir_estatisticas(Funcionario** tabela, int tamanho_tabela);
 
+void gerar_dados(Funcionario *dados, int qtd);
+
+Tabela_hashing* alocar_tabela(int tamanho_tabela);
+
+void desalocar_tabela(Tabela_hashing* tabela, int tamanho_tabela);
+
+Funcionario* alocar_funcionario(char* matricula,char* nome,char* funcao, float salario);
+
+int hashing_rotacao(char *matricula, int tamanho_tabela);
+
+int Fole_shift(char *matricula, int tamanho_tabela);
+
+void inserir_na_tabela_hashing_rotacao_A(Tabela_hashing *tabela, Funcionario novo_funcionario, int tamanho_tabela) ;
+
+void inserir_ashing_fole_shift_B(Tabela_hashing *tabela, Funcionario novo_funcionario, int tamanho_tabela);
+
+
+void imprimir_estatisticas(Tabela_hashing* tabela, int tamanho_tabela);
 #endif
