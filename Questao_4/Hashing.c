@@ -137,8 +137,8 @@ void inserir_na_tabela_hashing_rotacao_A(Tabela_hashing *tabela, Funcionario nov
         tabela[posicao_inicial].funcionairo = alocar_funcionario(novo_funcionario.matricula, novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
     }
 }
-void inserir_ashing_fole_shift_B(Tabela_hashing *tabela, Funcionario novo_funcionario, int tamanho_tabela) {
-    int posicao_inicial = hashing_fole_shift(novo_funcionario.matricula, tamanho_tabela);
+void inserir_fole_shift_B(Tabela_hashing *tabela, Funcionario novo_funcionario, int tamanho_tabela) {
+    int posicao_inicial = Fole_shift(novo_funcionario.matricula, tamanho_tabela);
     int inserido = 0;
     // inserção foi concluída ou nem 
 

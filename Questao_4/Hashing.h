@@ -40,7 +40,7 @@ int Fole_shift(char *matricula, int tamanho_tabela);
 
 void inserir_na_tabela_hashing_rotacao_A(Tabela_hashing *tabela, Funcionario novo_funcionario, int tamanho_tabela) ;
 
-void inserir_ashing_fole_shift_B(Tabela_hashing *tabela, Funcionario novo_funcionario, int tamanho_tabela);
+void inserir_fole_shift_B(Tabela_hashing *tabela, Funcionario novo_funcionario, int tamanho_tabela);
 
 
 void imprimir_estatisticas(Tabela_hashing* tabela, int tamanho_tabela);
