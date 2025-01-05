@@ -19,11 +19,17 @@ typedef struct {
 } Grafo;
 
 int movimento_valido(Grafo *config_incial, Grafo *config_final);
+
 void gerar_grafo(Grafo *grafo, int matriz[][MAX_STATES]);
+
 void dijkstra(int inicio, int fim, int prev[], int dist[], int matriz[][MAX_STATES]);
+
 void mostrar_estado(int estado[]);
+
 void mostrar_caminho(int inicio, int fim, int prev[], int dist[], Grafo *grafo);
+
 void medir_tempo();
+
 void imprimir_matriz(int matriz[][MAX_STATES]);
 
 #endif

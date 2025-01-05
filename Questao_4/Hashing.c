@@ -1,5 +1,13 @@
 #include "Hashing.h"
 
+/**
+ * @brief Gera uma matrícula aleatória.
+ *
+ * Esta função preenche a string fornecida com uma sequência de dígitos aleatórios,
+ * representando uma matrícula. A string resultante será terminada com um caractere nulo.
+ *
+ * @param matricula Ponteiro para a string onde a matrícula será armazenada.
+ */
 void gerar_matricula(char *matricula){
     for (int i = 0; i < TAM_MATRICULA; i++){
         matricula[i] = '0' + rand() % 10;
@@ -7,6 +15,18 @@ void gerar_matricula(char *matricula){
     matricula[TAM_MATRICULA] = '\0';
 }
 
+/**
+ * @brief Gera dados aleatórios para um array de funcionários.
+ *
+ * Esta função preenche um array de estruturas Funcionario com dados aleatórios,
+ * incluindo matrícula, nome, função e salário.
+ *
+ * @param dados Ponteiro para o array de estruturas Funcionario que será preenchido.
+ * @param qtd Quantidade de funcionários a serem gerados.
+ *
+ * As funções possíveis são: "Analista", "Gerente", "Tecnico" e "Assistente".
+ * O salário é gerado aleatoriamente entre 3000 e 15000.
+ */
 void gerar_dados(Funcionario *dados, int qtd){
     char *funcoes[] = {"Analista", "Gerente", "Tecnico", "Assistente"};
     int num_funcoes = sizeof(funcoes)/ sizeof(funcoes[0]);
@@ -20,6 +40,16 @@ void gerar_dados(Funcionario *dados, int qtd){
 
 }
 
+/**
+ * @brief Aloca uma tabela de hashing com o tamanho especificado.
+ *
+ * Esta função aloca memória para uma tabela de hashing com o tamanho fornecido.
+ * Se a alocação de memória falhar, a função imprime uma mensagem de erro e encerra o programa.
+ * Caso contrário, imprime uma mensagem de sucesso com o tamanho da tabela alocada.
+ *
+ * @param tamanho_tabela O tamanho da tabela de hashing a ser alocada.
+ * @return Um ponteiro para a tabela de hashing alocada.
+ */
 Tabela_hashing* alocar_tabela(int tamanho_tabela) {
  
     
@@ -35,6 +65,16 @@ Tabela_hashing* alocar_tabela(int tamanho_tabela) {
     return tabela;
 }
 
+/**
+ * @brief Desaloca a memória utilizada pela tabela de hashing.
+ *
+ * Esta função percorre a tabela de hashing e libera a memória alocada
+ * para cada elemento não nulo. Em seguida, libera a memória da própria
+ * tabela.
+ *
+ * @param tabela Ponteiro para a tabela de hashing a ser desalocada.
+ * @param tamanho_tabela Tamanho da tabela de hashing.
+ */
 void desalocar_tabela(Tabela_hashing* tabela, int tamanho_tabela) {
     for (int i = 0; i < tamanho_tabela; i++) {
         if (tabela[i].funcionairo != NULL) {
@@ -44,6 +84,19 @@ void desalocar_tabela(Tabela_hashing* tabela, int tamanho_tabela) {
     free(tabela);
 }
 
+/**
+ * @brief Aloca e inicializa um novo funcionário com os dados fornecidos.
+ *
+ * Esta função aloca memória para um novo funcionário e inicializa seus campos
+ * com os valores fornecidos. Se a alocação de memória falhar, a função imprime
+ * uma mensagem de erro e encerra o programa.
+ *
+ * @param matricula A matrícula do funcionário (string).
+ * @param nome O nome do funcionário (string).
+ * @param funcao A função do funcionário (string).
+ * @param salario O salário do funcionário (float).
+ * @return Um ponteiro para o novo funcionário alocado e inicializado.
+ */
 Funcionario* alocar_funcionario(char* matricula,char* nome,char* funcao, float salario) {
     Funcionario* novo_funcionario = (Funcionario*)malloc(sizeof(Funcionario));
     if (!novo_funcionario) {
@@ -60,11 +113,17 @@ Funcionario* alocar_funcionario(char* matricula,char* nome,char* funcao, float s
     return novo_funcionario;
 }
 
-
-/*Função Hashing: rotação de 2 dígitos para a esquerda depois extrai o 2,
- 4 6 dígitos e obtenha o resto da divisão pelo tamanho do vetor destino. 
-As colisões devem ser tratadas somando ao resto da divisão o 
-primeiro dígito da matrícula.*/
+/**
+ * @brief Calcula o valor de hash de uma matrícula utilizando rotação de caracteres.
+ *
+ * Esta função realiza a rotação dos caracteres de uma matrícula, somando os dígitos
+ * nas posições 2, 4 e 6 da matrícula rotacionada e calcula o valor de hash com base
+ * no tamanho da tabela de hash fornecida.
+ *
+ * @param matricula A string contendo a matrícula a ser processada. Deve ter pelo menos 6 caracteres.
+ * @param tamanho_tabela O tamanho da tabela de hash.
+ * @return O valor de hash calculado se a matrícula for válida, ou -1 se a matrícula for inválida.
+ */
 int hashing_rotacao(char *matricula, int tamanho_tabela) {
     int resultado_final = 0;
     int valido = 1;
@@ -88,9 +147,17 @@ int hashing_rotacao(char *matricula, int tamanho_tabela) {
     return valido ? resultado_final : -1;
 }
 
-/*(b) Função Hashing: fole shift com 3 dígitos da seguinte forma: o 1, 3 e  6; 2, 4 e 5, 
-depois obtenha o resto da divisão do resultado pelo tamanho do vetor destino. 
-As colisões devem ser realizadas somando 7 ao valor obtido. */
+/**
+ * @brief Calcula o índice de hash para uma matrícula utilizando a técnica de Fole Shift.
+ *
+ * Esta função recebe uma string de matrícula e o tamanho da tabela de hash, e calcula
+ * um índice de hash baseado na soma de dígitos específicos da matrícula. Se a matrícula
+ * tiver menos de 6 caracteres, a função retorna -1 indicando que a matrícula é inválida.
+ *
+ * @param matricula A string contendo a matrícula a ser processada. Deve ter pelo menos 6 caracteres.
+ * @param tamanho_tabela O tamanho da tabela de hash.
+ * @return O índice de hash calculado se a matrícula for válida, ou -1 se a matrícula for inválida.
+ */
 int Fole_shift(char *matricula, int tamanho_tabela) {
     int resultado_final = 0;
     int valido = 1;
@@ -110,6 +177,17 @@ int Fole_shift(char *matricula, int tamanho_tabela) {
     return valido ? resultado_final : -1;
 }
 
+/**
+ * @brief Insere um novo funcionário na tabela de hashing utilizando o método de rotação A.
+ *
+ * @param tabela Ponteiro para a tabela de hashing.
+ * @param novo_funcionario Estrutura contendo os dados do novo funcionário a ser inserido.
+ * @param tamanho_tabela Tamanho da tabela de hashing.
+ *
+ * A função tenta inserir o novo funcionário na posição calculada pela função de hashing
+ * e, em caso de colisão, utiliza a técnica de rotação A para encontrar uma nova posição.
+ * Se a tabela estiver cheia, o funcionário na posição inicial será substituído pelo novo funcionário.
+ */
 void inserir_na_tabela_hashing_rotacao_A(Tabela_hashing *tabela, Funcionario novo_funcionario, int tamanho_tabela) {
     int posicao_inicial = hashing_rotacao(novo_funcionario.matricula, tamanho_tabela);
     int incremento = novo_funcionario.matricula[0] - '0';
@@ -137,6 +215,19 @@ void inserir_na_tabela_hashing_rotacao_A(Tabela_hashing *tabela, Funcionario nov
         tabela[posicao_inicial].funcionairo = alocar_funcionario(novo_funcionario.matricula, novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
     }
 }
+
+/**
+ * @brief Insere um novo funcionário na tabela de hashing utilizando a técnica de Fole Shift com passo 7.
+ *
+ * @param tabela Ponteiro para a tabela de hashing.
+ * @param novo_funcionario Estrutura contendo os dados do novo funcionário a ser inserido.
+ * @param tamanho_tabela Tamanho da tabela de hashing.
+ *
+ * A função tenta inserir o novo funcionário na posição calculada pela função Fole_shift.
+ * Em caso de colisão, a função tenta inserir o funcionário na próxima posição disponível,
+ * utilizando um passo de 7 posições. Se a tabela estiver cheia, o funcionário na posição
+ * inicial é substituído pelo novo funcionário.
+ */
 void inserir_fole_shift_B(Tabela_hashing *tabela, Funcionario novo_funcionario, int tamanho_tabela) {
     int posicao_inicial = Fole_shift(novo_funcionario.matricula, tamanho_tabela);
     int inserido = 0;
@@ -163,7 +254,15 @@ void inserir_fole_shift_B(Tabela_hashing *tabela, Funcionario novo_funcionario, 
     }
 }
 
-
+/**
+ * @brief Imprime as estatísticas da tabela de hashing.
+ *
+ * Esta função percorre a tabela de hashing e calcula o número de entradas
+ * ocupadas e o número total de colisões. Em seguida, imprime essas estatísticas.
+ *
+ * @param tabela Ponteiro para a tabela de hashing.
+ * @param tamanho_tabela Tamanho da tabela de hashing.
+ */
 void imprimir_estatisticas(Tabela_hashing* tabela, int tamanho_tabela) {
     int num_entradas = 0;
     int num_colisoes = 0;
