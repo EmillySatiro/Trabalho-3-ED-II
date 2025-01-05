@@ -1,6 +1,6 @@
-
 #include "Dijskstra.h"
 
+// essa está em analise 
 int movimento_valido(Grafo *config_incial, Grafo *config_final) {
     int diferencas = 0;
     int indice_diferenca = -1;
@@ -34,6 +34,18 @@ int movimento_valido(Grafo *config_incial, Grafo *config_final) {
 }
 
 
+/**
+ * @brief Gera o grafo e a matriz de adjacência.
+ *
+ * Esta função gera o grafo representando os estados possíveis e a matriz de adjacência
+ * que indica se um movimento entre dois estados é válido ou não.
+ *
+ * @param grafo Ponteiro para o grafo que será gerado.
+ * @param matriz Matriz de adjacência que será preenchida com 1 para movimentos válidos e 0 para movimentos inválidos.
+ *
+ * A função primeiro gera os estados possíveis do grafo, determinando o pino de cada disco.
+ * Em seguida, preenche a matriz de adjacência verificando se o movimento entre dois estados é válido.
+ */
 void gerar_grafo(Grafo *grafo, int matriz[][MAX_STATES]) {
     // gerando o estado do bagulho
     for (int i = 0; i < MAX_STATES; i++) {
@@ -56,7 +68,20 @@ void gerar_grafo(Grafo *grafo, int matriz[][MAX_STATES]) {
     }
 }
 
-
+/**
+ * @brief Executa o algoritmo de Dijkstra para encontrar o caminho mais curto entre dois nós em um grafo.
+ *
+ * @param inicio O nó inicial de onde o algoritmo começa.
+ * @param fim O nó final onde o algoritmo termina.
+ * @param prev Vetor que armazena o nó anterior no caminho mais curto para cada nó.
+ * @param dist Vetor que armazena a menor distância do nó inicial para cada nó.
+ * @param matriz Matriz de adjacência que representa o grafo, onde matriz[i][j] é a distância entre os nós i e j.
+ *
+ * O algoritmo de Dijkstra encontra o caminho mais curto de um nó inicial para todos os outros nós em um grafo
+ * com pesos não negativos. Ele utiliza uma abordagem gulosa para selecionar o nó com a menor distância não visitado
+ * e atualiza as distâncias dos seus vizinhos. O processo continua até que todos os nós tenham sido visitados ou
+ * que a menor distância restante seja infinita, indicando que os nós restantes são inacessíveis a partir do nó inicial.
+ */
 void dijkstra(int inicio, int fim, int prev[], int dist[], int matriz[][MAX_STATES]) {
     // Inicializa as distancias
     for (int i = 0; i < MAX_STATES; i++) {
@@ -99,12 +124,30 @@ void dijkstra(int inicio, int fim, int prev[], int dist[], int matriz[][MAX_STAT
     }
 }
 
-
+/**
+ * @brief Mostra o estado atual dos discos e seus respectivos pinos.
+ *
+ * Esta função imprime no console o estado atual de cada disco, indicando
+ * em qual pino cada disco está localizado. A função assume que o array
+ * `estado` contém a posição de cada disco, onde o índice do array representa
+ * o disco e o valor no índice representa o pino.
+ *
+ * @param estado Array de inteiros que representa o estado atual dos discos.
+ */
 void mostrar_estado(int estado[]) {
     for (int i = 0; i < NUM_DISKS; i++) {
         printf("Disco %d -> Pino %d\n", i + 1, estado[i]);
     }
 }
+
+/**
+ * @brief Imprime uma matriz de inteiros.
+ *
+ * Esta função recebe uma matriz de inteiros e imprime seus elementos
+ * no console, organizados em formato de matriz.
+ *
+ * @param matriz A matriz de inteiros a ser impressa.
+ */
 void imprimir_matriz(int matriz[][MAX_STATES]) {
     for (int i = 0; i < MAX_STATES; i++) {
         for (int j = 0; j < MAX_STATES; j++) {
@@ -113,6 +156,21 @@ void imprimir_matriz(int matriz[][MAX_STATES]) {
         printf("\n");
     }
 }
+
+/**
+ * @brief Mostra o menor caminho de um vértice inicial para um vértice final em um grafo, 
+ *        bem como as configurações dos discos ao longo do caminho.
+ * 
+ * @param inicio O vértice inicial.
+ * @param fim O vértice final.
+ * @param prev Vetor que armazena o vértice anterior para cada vértice no caminho mais curto.
+ * @param dist Vetor que armazena a distância mínima de cada vértice a partir do vértice inicial.
+ * @param grafo Ponteiro para a estrutura do grafo.
+ * 
+ * Esta função verifica se existe um caminho acessível do vértice inicial para o vértice final.
+ * Se existir, imprime a distância mínima e o caminho do vértice inicial ao vértice final.
+ * Além disso, exibe as configurações dos discos em cada estado ao longo do caminho.
+ */
 void mostrar_caminho(int inicio, int fim, int prev[], int dist[], Grafo *grafo) {
     if (dist[fim] == INT_MAX) {
         printf("Nao ha caminho acessivel de %d para %d.\n", inicio, fim);
@@ -145,33 +203,65 @@ void mostrar_caminho(int inicio, int fim, int prev[], int dist[], Grafo *grafo) 
 
 }
 
-
+/**
+ * @brief Função para medir o tempo de execução do algoritmo de Dijkstra e interagir com o usuário.
+ *
+ * Esta função gera um grafo e uma matriz de adjacência, e então apresenta um menu para o usuário
+ * escolher entre mostrar o caminho mais curto entre duas configurações, mostrar a matriz de adjacência,
+ * ou sair do programa. O tempo de execução do algoritmo de Dijkstra é medido e exibido ao usuário.
+ *
+ * O menu possui as seguintes opções:
+ * 1. Mostrar Caminho: Solicita ao usuário os índices das configurações inicial e final, executa o algoritmo
+ *    de Dijkstra para encontrar o caminho mais curto entre essas configurações, e exibe o caminho e o tempo
+ *    de execução do algoritmo.
+ * 2. Mostrar Matriz de Adjacência: Exibe a matriz de adjacência do grafo.
+ * 3. Sair: Encerra o programa.
+ *
+ * A função continua exibindo o menu até que o usuário escolha a opção de sair.
+ */
 void medir_tempo() {
     Grafo grafo[MAX_STATES];
     int matriz[MAX_STATES][MAX_STATES];
-
-   
     gerar_grafo(grafo, matriz);
-
-    int inicio, fim;
-    printf("Digite o indice da configuracao Inicial (0 a %d): ", MAX_STATES - 1);
-    scanf("%d", &inicio);
-    printf("Digite o indice da configuracao Final (0 a %d): ", MAX_STATES - 1);
-    scanf("%d", &fim);
-
+    int inicio, fim,opcao;
+    clock_t inicio_tempo, fim_tempo;
     int dist[MAX_STATES];
     int prev[MAX_STATES];
+  
+    printf("\n=============================\n");
+    printf("    Bem-vindo ao Jogo da Torre de Hanói!\n");
+    printf("=============================\n");
+    do {
+        printf("1. Mostrar Caminho\n");
+        printf("2. Mostrar Matriz de Adjacência\n");
+        printf("3. Sair\n");
+        printf("=============================\n");
+        printf("Escolha uma opção: ");
+        scanf("%d", &opcao);
 
-    clock_t inicio_tempo, fim_tempo;
-    inicio_tempo = clock();
+        while (getchar() != '\n');
 
- 
-    dijkstra(inicio, fim, prev, dist, matriz);
-
-    fim_tempo = clock();
-
-    mostrar_caminho(inicio, fim, prev, dist,grafo);
-
-    double tempo = (double)(fim_tempo - inicio_tempo) / CLOCKS_PER_SEC;
-    printf("Tempo do algoritmo de Dijkstra: %f segundos\n", tempo);
+        switch (opcao) {
+            case 1:
+                printf("Digite o indice da configuracao Inicial (0 a %d): ", MAX_STATES - 1);
+                scanf("%d", &inicio);
+                printf("Digite o indice da configuracao Final (0 a %d): ", MAX_STATES - 1);
+                scanf("%d", &fim);
+                inicio_tempo = clock();
+                dijkstra(inicio, fim, prev, dist, matriz);
+                fim_tempo = clock();
+                mostrar_caminho(inicio, fim, prev, dist,grafo);
+                double tempo = (double)(fim_tempo - inicio_tempo) / CLOCKS_PER_SEC;
+                printf("Tempo do algoritmo de Dijkstra: %f segundos\n", tempo);
+                break;
+            case 2:
+                imprimir_matriz(matriz);
+                break;
+            case 3:
+                printf("\nSaindo do jogo...\n");
+                break;
+            default:
+                printf("\nOpção inválida. Tente novamente.\n");
+        }
+    } while (opcao != 3);
 }

@@ -18,7 +18,6 @@ typedef struct {
     int estado[NUM_DISKS]; 
 } Grafo;
 
-
 int movimento_valido(Grafo *config_incial, Grafo *config_final);
 void gerar_grafo(Grafo *grafo, int matriz[][MAX_STATES]);
 void dijkstra(int inicio, int fim, int prev[], int dist[], int matriz[][MAX_STATES]);
