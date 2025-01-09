@@ -1,38 +1,42 @@
 #include "Dijskstra.h"
 
-// essa está em analise 
-int movimento_valido(Grafo *config_incial, Grafo *config_final) {
-    int diferencas = 0;
-    int indice_diferenca = -1;
-    int valido = 1; // valido 
 
+/**
+ * @brief Verifica se o movimento entre duas configurações de um grafo é válido.
+ *
+ * Esta função compara duas configurações de um grafo e determina se a transição
+ * entre elas é válida. Um movimento é considerado válido se houver no máximo
+ * uma diferença entre os estados das duas configurações e se essa diferença
+ * não violar as regras de movimentação dos discos entre os pinos.
+ *
+ * @param config1 Ponteiro para a primeira configuração do grafo.
+ * @param config2 Ponteiro para a segunda configuração do grafo.
+ * @return int Retorna 1 se o movimento for válido, 0 caso contrário.
+ */
+int movimento_valido(Grafo *config1, Grafo *config2) {
+    int var_count = 0, diff_idx = -1;
+    int valido = 1;
    
-    //contar o numero de diferenças no bagulho 
-    for (int i = 0; i < NUM_PINS; i++){
-        if(config_incial->estado[i] !=  config_final->estado[i]) {
-            diferencas++;
-            indice_diferenca = i;
+    for (int i = 0; i < NUM_DISKS && var_count <= 1; ++i) {
+        if (config1->estado[i] != config2->estado[i]) {
+            var_count++;
+            diff_idx = i;
         }
     }
-    // conferindo se tem mais de uma diferença 
-    if (diferencas > 1){
-        valido = 0; 
-    }
-    
-    // verificar se os movimentos valem baseado na posição da diferença 
-     for (int i = 0; i < NUM_PINS; ++i) {
-        if (movimento_valido && i != indice_diferenca) {
-            int pino_inicial = (config_incial->estado[i] == config_incial->estado[indice_diferenca]);
-            int pino_final = (config_final->estado[i] == config_final->estado[indice_diferenca]);
-            
-            if ((pino_inicial || pino_final) && i < indice_diferenca) {
-                valido = 0; // conflito com outro disco
+    if (var_count > 1) {
+        valido = 0; //inválido
+    } else {
+        
+        for (int i = 0; i < NUM_PINS; i++) {
+            if (i != diff_idx && 
+                ((config1->estado[i] == config1->estado[diff_idx] && i < diff_idx) ||
+                (config2->estado[i] == config2->estado[diff_idx] && i < diff_idx))) {
+                valido = 0; 
             }
         }
     }
-    return valido; 
+     return valido;
 }
-
 
 /**
  * @brief Gera o grafo e a matriz de adjacência.
