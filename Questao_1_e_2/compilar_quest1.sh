@@ -4,11 +4,11 @@
 BASE_DIR="/root/Trabalho-3-ED-II"
 
 # Nome do executável
-EXECUTAVEL="programa_quest_1"
+EXECUTAVEL="programa_quest_1_e_2"
 
 # Arquivos necessários
-MAIN_FILE="$BASE_DIR/Questao_1/main_quest_1.c"
-ARVORE2_3_FILE="$BASE_DIR/Questao_1/Dijskstra.c"
+MAIN_FILE="$BASE_DIR/Questao_1_e_2/main_quest_1.c"
+ARVORE2_3_FILE="$BASE_DIR/Questao_1_e_2/Dijskstra.c"
 
 
 # Verificar se os arquivos existem

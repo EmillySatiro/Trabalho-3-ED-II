@@ -207,65 +207,51 @@ void mostrar_caminho(int inicio, int fim, int prev[], int dist[], Grafo *grafo) 
 
 }
 
+
 /**
- * @brief Função para medir o tempo de execução do algoritmo de Dijkstra e interagir com o usuário.
+ * @brief Implementa o algoritmo de Bellman-Ford para encontrar o caminho mais curto em um grafo com pesos.
  *
- * Esta função gera um grafo e uma matriz de adjacência, e então apresenta um menu para o usuário
- * escolher entre mostrar o caminho mais curto entre duas configurações, mostrar a matriz de adjacência,
- * ou sair do programa. O tempo de execução do algoritmo de Dijkstra é medido e exibido ao usuário.
+ * @param inicio O vértice inicial a partir do qual calcular as distâncias.
+ * @param prev Vetor que armazenará os predecessores de cada vértice no caminho mais curto.
+ * @param dist Vetor que armazenará as distâncias mínimas do vértice inicial para cada vértice.
+ * @param mat_adj Matriz de adjacência que representa o grafo, onde mat_adj[u][v] é o peso da aresta de u para v.
  *
- * O menu possui as seguintes opções:
- * 1. Mostrar Caminho: Solicita ao usuário os índices das configurações inicial e final, executa o algoritmo
- *    de Dijkstra para encontrar o caminho mais curto entre essas configurações, e exibe o caminho e o tempo
- *    de execução do algoritmo.
- * 2. Mostrar Matriz de Adjacência: Exibe a matriz de adjacência do grafo.
- * 3. Sair: Encerra o programa.
- *
- * A função continua exibindo o menu até que o usuário escolha a opção de sair.
+ * @note A função assume que o grafo não possui ciclos de peso negativo acessíveis a partir do vértice inicial.
+ *       Se houver um ciclo de peso negativo, a função imprimirá uma mensagem indicando isso.
  */
-void medir_tempo() {
-    Grafo grafo[MAX_STATES];
-    int matriz[MAX_STATES][MAX_STATES];
-    gerar_grafo(grafo, matriz);
-    int inicio, fim,opcao;
-    clock_t inicio_tempo, fim_tempo;
-    int dist[MAX_STATES];
-    int prev[MAX_STATES];
-  
-    printf("\n=============================\n");
-    printf("    Bem-vindo ao Jogo da Torre de Hanói!\n");
-    printf("=============================\n");
-    do {
-        printf("1. Mostrar Caminho\n");
-        printf("2. Mostrar Matriz de Adjacência\n");
-        printf("3. Sair\n");
-        printf("=============================\n");
-        printf("Escolha uma opção: ");
-        scanf("%d", &opcao);
+void bellman_ford(int inicio, int prev[], int dist[], int mat_adj[][MAX_STATES]) {
+    for (int i = 0; i < MAX_STATES; i++) {
+        prev[i] = -1;
+        dist[i] = INT_MAX;  
+    }
+    dist[inicio] = 0;  
 
-        while (getchar() != '\n');
-
-        switch (opcao) {
-            case 1:
-                printf("Digite o indice da configuracao Inicial (0 a %d): ", MAX_STATES - 1);
-                scanf("%d", &inicio);
-                printf("Digite o indice da configuracao Final (0 a %d): ", MAX_STATES - 1);
-                scanf("%d", &fim);
-                inicio_tempo = clock();
-                dijkstra(inicio, fim, prev, dist, matriz);
-                fim_tempo = clock();
-                mostrar_caminho(inicio, fim, prev, dist,grafo);
-                double tempo = (double)(fim_tempo - inicio_tempo) / CLOCKS_PER_SEC;
-                printf("Tempo do algoritmo de Dijkstra: %f segundos\n", tempo);
-                break;
-            case 2:
-                imprimir_matriz(matriz);
-                break;
-            case 3:
-                printf("\nSaindo do jogo...\n");
-                break;
-            default:
-                printf("\nOpção inválida. Tente novamente.\n");
+    for (int i = 1; i < MAX_STATES; i++) {
+        int atualizado = 0;
+        
+        for (int u = 0; u < MAX_STATES; u++) {
+            for (int v = 0; v < MAX_STATES; v++) {
+              
+                if (mat_adj[u][v] != 0 && dist[u] != INT_MAX && dist[u] + mat_adj[u][v] < dist[v]) {
+                    dist[v] = dist[u] + mat_adj[u][v];
+                    prev[v] = u;
+                    atualizado = 1;  
+                }
+            }
         }
-    } while (opcao != 3);
+        
+        
+        if (!atualizado) {
+            break;
+        }
+    }
+    for (int u = 0; u < MAX_STATES; u++) {
+        for (int v = 0; v < MAX_STATES; v++) {
+            if (mat_adj[u][v] == 0 && dist[u] == INT_MAX && dist[u] + mat_adj[u][v] > dist[v]) {
+                printf("Há um ciclo de peso negativo no grafo.\n");
+            }
+        }
+    }
+
+  
 }

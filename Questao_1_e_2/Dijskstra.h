@@ -28,8 +28,8 @@ void mostrar_estado(int estado[]);
 
 void mostrar_caminho(int inicio, int fim, int prev[], int dist[], Grafo *grafo);
 
-void medir_tempo();
-
 void imprimir_matriz(int matriz[][MAX_STATES]);
+
+void bellman_ford(int inicio, int prev[], int dist[], int mat_adj[][MAX_STATES]);
 
 #endif
