@@ -1,46 +1,31 @@
 #ifndef GRAFO_H
 #define GRAFO_H
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdbool.h>
 #include <limits.h>
-#include <math.h>
 
-
-#define INF 1e9
-#define MAX 100
-
-typedef struct {
-    int v; // Vértice de destino
-    double weight; // Confiabilidade (r(u, v))
-} Edge;
+// Definições de tamanho do grafo
+#define NUM_VERTICES 3
+#define CONFIABILIDADE_MAX 1.0
 
 typedef struct {
-    int u, v; // Aresta (u -> v)
-    double weight; // Confiabilidade
-} Node;
+    int id;
+} Vertice;
 
 typedef struct {
-    int vertex;
-    double reliability; // Log da confiabilidade acumulada
-} HeapNode;
+    double confiabilidade;
+} Aresta;
 
 typedef struct {
-    HeapNode heap[MAX];
-    int size;
-} MinHeap;
+    Vertice vertices[NUM_VERTICES];
+    Aresta arestas[NUM_VERTICES][NUM_VERTICES];
+} Grafo;
 
 
-// Funções auxiliares para manipular MinHeap
-void initMinHeap(MinHeap* minHeap);
-void swapHeapNode(HeapNode* a, HeapNode* b);
-void heapify(MinHeap* minHeap, int index);
-HeapNode extractMin(MinHeap* minHeap);
-void decreaseKey(MinHeap* minHeap, int vertex, double reliability);
-void insertMinHeap(MinHeap* minHeap, int vertex, double reliability);
-// Dijkstra para encontrar o caminho mais confiável
-double dijkstra(Edge* graph[MAX], int vertices, int origem, int destino);
-
-
+void inicializar_Grafo(Grafo *grafo);
+void exibir_Grafo(const Grafo *grafo);
+void preencher_Arestas_Aleatoriamente(Grafo *grafo);
+void dijkstra(Grafo *grafo, int origem, int *predecessor, double *distancia);
+void exibir_Caminho(int *predecessor, int destino);
 
 #endif

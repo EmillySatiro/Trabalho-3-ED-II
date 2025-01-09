@@ -1,99 +1,93 @@
 #include "grafo.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
-// Funções auxiliares para manipular MinHeap
-void initMinHeap(MinHeap* minHeap) {
-    minHeap->size = 0;
-}
 
-void swapHeapNode(HeapNode* a, HeapNode* b) {
-    HeapNode temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
-void heapify(MinHeap* minHeap, int index) {
-    int smallest = index;
-    int left = 2 * index + 1;
-    int right = 2 * index + 2;
-
-    if (left < minHeap->size && minHeap->heap[left].reliability < minHeap->heap[smallest].reliability)
-        smallest = left;
-    if (right < minHeap->size && minHeap->heap[right].reliability < minHeap->heap[smallest].reliability)
-        smallest = right;
-    if (smallest != index) {
-        swapHeapNode(&minHeap->heap[smallest], &minHeap->heap[index]);
-        heapify(minHeap, smallest);
+void inicializar_Grafo(Grafo *grafo) {
+    for (int i = 0; i < NUM_VERTICES; i++) {
+        grafo->vertices[i].id = i;
     }
-}
-
-HeapNode extractMin(MinHeap* minHeap) {
-    HeapNode root = minHeap->heap[0];
-    minHeap->heap[0] = minHeap->heap[minHeap->size - 1];
-    --minHeap->size;
-    heapify(minHeap, 0);
-    return root;
-}
-
-void decreaseKey(MinHeap* minHeap, int vertex, double reliability) {
-    int i;
-    for (i = 0; i < minHeap->size; ++i) {
-        if (minHeap->heap[i].vertex == vertex) {
-            minHeap->heap[i].reliability = reliability;
-            break;
+    for (int i = 0; i < NUM_VERTICES; i++) {
+        for (int j = 0; j < NUM_VERTICES; j++) {
+            grafo->arestas[i][j].confiabilidade = 0.0;
         }
     }
+}
 
-    while (i != 0 && minHeap->heap[(i - 1) / 2].reliability > minHeap->heap[i].reliability) {
-        swapHeapNode(&minHeap->heap[i], &minHeap->heap[(i - 1) / 2]);
-        i = (i - 1) / 2;
+
+void exibir_Grafo(const Grafo *grafo) {
+    printf("Grafo atual:\n");
+    for (int i = 0; i < NUM_VERTICES; i++) {
+        for (int j = 0; j < NUM_VERTICES; j++) {
+            printf("Vértice %d -> Vértice %d: Confiabilidade = %.2f\n", 
+                   grafo->vertices[i].id, grafo->vertices[j].id, 
+                   grafo->arestas[i][j].confiabilidade);
+        }
     }
 }
 
-void insertMinHeap(MinHeap* minHeap, int vertex, double reliability) {
-    ++minHeap->size;
-    int i = minHeap->size - 1;
-    minHeap->heap[i].vertex = vertex;
-    minHeap->heap[i].reliability = reliability;
-
-    while (i != 0 && minHeap->heap[(i - 1) / 2].reliability > minHeap->heap[i].reliability) {
-        swapHeapNode(&minHeap->heap[i], &minHeap->heap[(i - 1) / 2]);
-        i = (i - 1) / 2;
+void preencher_Arestas_Aleatoriamente(Grafo *grafo) {
+    for (int i = 0; i < NUM_VERTICES; i++) {
+        for (int j = i + 1; j < NUM_VERTICES; j++) {
+            double confiabilidade = ((double) rand() / RAND_MAX) * CONFIABILIDADE_MAX;
+            grafo->arestas[i][j].confiabilidade = confiabilidade;
+            grafo->arestas[j][i].confiabilidade = confiabilidade;
+        }
     }
 }
 
-// Dijkstra para encontrar o caminho mais confiável
-double dijkstra(Edge* graph[MAX], int vertices, int origem, int destino) {
-    double dist[MAX];
-    int visited[MAX];
-    MinHeap minHeap;
 
-    // Inicializar
-    for (int i = 0; i < vertices; ++i) {
-        dist[i] = INF;
-        visited[i] = 0;
+void dijkstra(Grafo *grafo, int origem, int *predecessor, double *distancia) {
+    bool visitado[NUM_VERTICES] = {false};
+    
+    for (int i = 0; i < NUM_VERTICES; i++) {
+        distancia[i] = -INFINITY; 
+        predecessor[i] = -1;
     }
 
-    dist[origem] = 0;
-    initMinHeap(&minHeap);
-    insertMinHeap(&minHeap, origem, 0);
+    distancia[origem] = 0.0;  
+    for (int i = 0; i < NUM_VERTICES; i++) {
+        int verticeAtual = -1;
+        
+        for (int j = 0; j < NUM_VERTICES; j++) {
+            if (!visitado[j] && (verticeAtual == -1 || distancia[j] > distancia[verticeAtual])) {
+                verticeAtual = j;
+            }
+        }
 
-    while (minHeap.size > 0) {
-        HeapNode minNode = extractMin(&minHeap);
-        int u = minNode.vertex;
+        if (distancia[verticeAtual] == -INFINITY) {
+            break;  
+        }
 
-        if (visited[u]) continue;
-        visited[u] = 1;
-
-        for (int i = 0; graph[u][i].v != -1; ++i) {
-            int v = graph[u][i].v;
-            double weight = -log(graph[u][i].weight);
-
-            if (!visited[v] && dist[u] + weight < dist[v]) {
-                dist[v] = dist[u] + weight;
-                insertMinHeap(&minHeap, v, dist[v]);
+        visitado[verticeAtual] = true;  
+        for (int j = 0; j < NUM_VERTICES; j++) {
+            if (grafo->arestas[verticeAtual][j].confiabilidade > 0.0) {
+                double novaDistancia = distancia[verticeAtual] + log(grafo->arestas[verticeAtual][j].confiabilidade);
+                if (novaDistancia > distancia[j] ) {
+                    distancia[j] = novaDistancia;
+                    predecessor[j] = verticeAtual;
+                }
             }
         }
     }
+}
 
-    return exp(-dist[destino]); // Converter o log de volta para a confiabilidade
+void exibir_Caminho(int *predecessor, int destino) {
+    if (predecessor[destino] == -1) {
+        printf("Não há caminho para o vértice %d\n", destino);
+        return;
+    }
+
+    printf("Caminho: ");
+    int caminho[NUM_VERTICES];
+    int idx = 0;
+    for (int v = destino; v != -1; v = predecessor[v]) {
+        caminho[idx++] = v;
+    }
+
+    for (int i = idx - 1; i >= 0; i--) {
+        printf("%d ", caminho[i]);
+    }
+    printf("\n");
 }

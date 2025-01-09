@@ -2,26 +2,46 @@
 #include "grafo.h"
 
 int main() {
-    int vertices = 5;
-    Edge* graph[MAX];
-    for (int i = 0; i < MAX; ++i) {
-        graph[i] = (Edge*)malloc(MAX * sizeof(Edge));
-        for (int j = 0; j < MAX; ++j) {
-            graph[i][j].v = -1; // Inicializar o grafo
+    Grafo grafo;
+    int predecessor[NUM_VERTICES];
+    double distancia[NUM_VERTICES];
+    int opcao;
+
+    inicializar_Grafo(&grafo);
+    
+    do {
+        printf("\n=======Menu de Operações========:\n");
+        printf("1. Inicializar Grafo\n");
+        printf("2. Exibir Grafo\n");
+        printf("3. Preencher Grafo com Arestas Aleatórias\n");
+        printf("4. Encontrar Caminho com Dijkstra\n");
+        printf("5. Sair\n");
+        printf("Escolha uma opção: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                inicializar_Grafo(&grafo);
+                printf("Grafo inicializado.\n");
+                break;
+            case 2:
+                exibir_Grafo(&grafo);
+                break;
+            case 3:
+                preencher_Arestas_Aleatoriamente(&grafo);
+                printf("Arestas preenchidas aleatoriamente.\n");
+                break;
+            case 4:
+                dijkstra(&grafo, 0, predecessor, distancia);
+                exibir_Caminho(predecessor, 2);
+                break;
+            case 5:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opção inválida. Tente novamente.\n");
         }
-    }
-
-    // Arestas (u -> v, confiabilidade)
-    graph[0][0] = (Edge){1, 0.9};
-    graph[0][1] = (Edge){2, 0.5};
-    graph[1][0] = (Edge){3, 0.7};
-    graph[2][0] = (Edge){3, 0.8};
-    graph[3][0] = (Edge){4, 0.6};
-    graph[4][0] = (Edge){-1, 0};
-
-    int origem = 0, destino = 10;
-    double confiabilidade = dijkstra(graph, vertices, origem, destino);
-    printf("Caminho mais confiável de %d para %d tem confiabilidade %.6f\n", origem, destino, confiabilidade);
+    } while (opcao != 5);
 
     return 0;
 }
