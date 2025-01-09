@@ -39,41 +39,54 @@ void preencher_Arestas_Aleatoriamente(Grafo *grafo) {
 
 
 void dijkstra(Grafo *grafo, int origem, int *predecessor, double *distancia) {
-    bool visitado[NUM_VERTICES] = {false};
-    
-    for (int i = 0; i < NUM_VERTICES; i++) {
-        distancia[i] = -INFINITY; 
-        predecessor[i] = -1;
+    if (origem < 0 || origem >= NUM_VERTICES) {
+        printf("Erro: Vértice de origem inválido.\n");
+        return;
     }
 
-    distancia[origem] = 0.0;  
+    bool visitado[NUM_VERTICES] = {false};
+    
+    // Inicializa distâncias e predecessores
+    for (int i = 0; i < NUM_VERTICES; i++) {
+        distancia[i] = INFINITO_NEGATIVO; // Menor valor possível para maximizar confiabilidade
+        predecessor[i] = -1; // Nenhum predecessor inicialmente
+    }
+
+    distancia[origem] = 0.0; // Confiabilidade máxima no vértice de origem (log(1) = 0)
+    
     for (int i = 0; i < NUM_VERTICES; i++) {
         int verticeAtual = -1;
         
+        // Encontra o vértice não visitado com maior confiabilidade acumulada
         for (int j = 0; j < NUM_VERTICES; j++) {
             if (!visitado[j] && (verticeAtual == -1 || distancia[j] > distancia[verticeAtual])) {
                 verticeAtual = j;
             }
         }
 
+        // Se não há vértices alcançáveis, sai do loop
         if (distancia[verticeAtual] == -INFINITY) {
-            break;  
+            break;
         }
 
-        visitado[verticeAtual] = true;  
+        visitado[verticeAtual] = true; // Marca como visitado
+        
+        // Atualiza as distâncias para os vizinhos do vértice atual
         for (int j = 0; j < NUM_VERTICES; j++) {
-            if (grafo->arestas[verticeAtual][j].confiabilidade > 0.0) {
+            if (grafo->arestas[verticeAtual][j].confiabilidade > 0.0) { 
+                // Usa logaritmo para somar confiabilidades acumuladas
                 double novaDistancia = distancia[verticeAtual] + log(grafo->arestas[verticeAtual][j].confiabilidade);
-                if (novaDistancia > distancia[j] ) {
-                    distancia[j] = novaDistancia;
-                    predecessor[j] = verticeAtual;
+                if (novaDistancia > distancia[j]) {
+                    distancia[j] = novaDistancia; // Atualiza a maior confiabilidade
+                    predecessor[j] = verticeAtual; // Define o predecessor
                 }
             }
         }
     }
+   
 }
 
-void exibir_Caminho(int *predecessor, int destino) {
+void exibir_Caminho(int *predecessor, int destino, double *des) {
     if (predecessor[destino] == -1) {
         printf("Não há caminho para o vértice %d\n", destino);
         return;
@@ -89,5 +102,9 @@ void exibir_Caminho(int *predecessor, int destino) {
     for (int i = idx - 1; i >= 0; i--) {
         printf("%d ", caminho[i]);
     }
-    printf("\n");
+    printf("\nConfiabilidade total (logarítmica): %f\n", des[destino]);
+    
+    // Exibe a confiabilidade total no formato normal (não logarítmico)
+    double confiabilidade_total = exp(des[destino]);
+    printf("Confiabilidade total (normal): %f\n", confiabilidade_total);
 }

@@ -5,10 +5,13 @@ int main() {
     Grafo grafo;
     int predecessor[NUM_VERTICES];
     double distancia[NUM_VERTICES];
+    double menorValor = INFINITO_NEGATIVO;
     int opcao;
-
-    inicializar_Grafo(&grafo);
-    
+    // printf("\n======= Criando o grafo======:\n");
+    // printf("Qual a uantidade de vertices para o seu grafo!!\n");
+    // scanf("%d", &vertices);
+    // int predecessor[vertices];
+    // double distancia[vertices];
     do {
         printf("\n=======Menu de Operações========:\n");
         printf("1. Inicializar Grafo\n");
@@ -33,7 +36,8 @@ int main() {
                 break;
             case 4:
                 dijkstra(&grafo, 0, predecessor, distancia);
-                exibir_Caminho(predecessor, 2);
+                
+                exibir_Caminho(predecessor, 3, distancia);
                 break;
             case 5:
                 printf("Saindo...\n");
