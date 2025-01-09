@@ -135,9 +135,8 @@ int hashing_rotacao(char *matricula, int tamanho_tabela) {
 
     if (valido) {
        char matricula_rotacionada[10]; 
-       strcpy(matricula_rotacionada, matricula + 2);// aqui eu pego a matricula depois dos dois primerios numeros 
-       strncat(matricula_rotacionada , matricula, 2);// aqui eu coloco eles no final 
-
+       strcpy(matricula_rotacionada, matricula + 4);// aqui eu pego a matricula depois dos 4 primerios numeros 
+       strncat(matricula_rotacionada , matricula, 4);// aqui eu coloco eles no final 
        int digitos_2_4_6 = (matricula_rotacionada[1] - '0') + (matricula_rotacionada[3] - '0') + (matricula_rotacionada[5] - '0');
 
        resultado_final = digitos_2_4_6 % tamanho_tabela; 
@@ -189,32 +188,46 @@ int Fole_shift(char *matricula, int tamanho_tabela) {
  * Se a tabela estiver cheia, o funcionário na posição inicial será substituído pelo novo funcionário.
  */
 void inserir_na_tabela_hashing_rotacao_A(Tabela_hashing *tabela, Funcionario novo_funcionario, int tamanho_tabela) {
+
     int posicao_inicial = hashing_rotacao(novo_funcionario.matricula, tamanho_tabela);
-    int incremento = novo_funcionario.matricula[0] - '0';
-
     int inserido = 0;
-    // inserção foi concluída ou nem 
 
-    for (int tentativa = 0; tentativa < tamanho_tabela && !inserido; tentativa++) {
-        int posicao = (posicao_inicial + tentativa * incremento) % tamanho_tabela;
-
-        if (tabela[posicao].funcionairo == NULL) {
-          
-            tabela[posicao].funcionairo = alocar_funcionario(novo_funcionario.matricula, novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
-            inserido = 1; //concluída
-        } else {
-            tabela[posicao].colisoes++;
+    // Verifica se a posição inicial é válida
+    if (posicao_inicial != -1) {
+        int posicao_atual = posicao_inicial;
+        int tentativa = 0;
+        int incremento = novo_funcionario.matricula[0] - '0';  
+        
+       
+       
+        if (incremento == 0) {
+            incremento = 1;
         }
-    }
 
-    // Se a tabela estiver cheia
-    if (!inserido) {
-        if (tabela[posicao_inicial].funcionairo != NULL) {
+      
+        while (tentativa < tamanho_tabela && !inserido) {
+            // Se o espaço estiver vazio, insere o funcionário
+            if (tabela[posicao_atual].funcionairo == NULL) {
+                tabela[posicao_atual].funcionairo = alocar_funcionario(novo_funcionario.matricula, novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
+                inserido = 1;  // Marca como inserido
+            } else {
+                // Caso haja colisão, incrementa o número de colisões e faz a 
+                tabela[posicao_atual].colisoes++;
+                posicao_atual = (posicao_atual + incremento) % tamanho_tabela;  // Resolução de colisão com incremento
+            }
+            tentativa++;
+        }
+
+        // Caso a inserção não tenha sido feita após todas as tentativas, substitui o funcionário na posição original
+        if (!inserido && tabela[posicao_inicial].funcionairo != NULL) {
+            // Libera a memória alocada e insere o novo funcionário
             free(tabela[posicao_inicial].funcionairo); 
+            tabela[posicao_inicial].funcionairo = alocar_funcionario(novo_funcionario.matricula, novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
         }
-        tabela[posicao_inicial].funcionairo = alocar_funcionario(novo_funcionario.matricula, novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
     }
 }
+
+
 
 /**
  * @brief Insere um novo funcionário na tabela de hashing utilizando a técnica de Fole Shift com passo 7.
