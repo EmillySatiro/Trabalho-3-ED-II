@@ -40,28 +40,28 @@ void gerar_dados(Funcionario *dados, int qtd){
 
 }
 
+
 /**
  * @brief Aloca uma tabela de hashing com o tamanho especificado.
  *
  * Esta função aloca memória para uma tabela de hashing com o tamanho fornecido.
- * Se a alocação de memória falhar, a função imprime uma mensagem de erro e encerra o programa.
- * Caso contrário, imprime uma mensagem de sucesso com o tamanho da tabela alocada.
+ * Inicializa cada entrada da tabela com valores padrão.
  *
  * @param tamanho_tabela O tamanho da tabela de hashing a ser alocada.
- * @return Um ponteiro para a tabela de hashing alocada.
+ * @return Um ponteiro para a tabela de hashing alocada. Retorna NULL se a alocação falhar.
  */
 Tabela_hashing* alocar_tabela(int tamanho_tabela) {
- 
-    
-    Tabela_hashing *tabela = (Tabela_hashing*)calloc(tamanho_tabela, sizeof(Tabela_hashing));
-    if (!tabela) {
+    Tabela_hashing *tabela = (Tabela_hashing*)malloc(tamanho_tabela* sizeof(Tabela_hashing));
+    if (tabela == NULL) {
+      printf("erro na alocação da tabela!!");
+       
+    }else{
+        for (int i = 0; i < tamanho_tabela; i++){
+        tabela[i].funcionairo = NULL;
+        tabela[i].colisoes = 0;
+       }
         
-        fprintf(stderr, "Erro ao alocar memória para a tabela hash.\n");
-        exit(EXIT_FAILURE);
     }
-
-   
-    printf("Tabela alocada com sucesso. Tamanho: %d\n", tamanho_tabela);
     return tabela;
 }
 
@@ -99,81 +99,79 @@ void desalocar_tabela(Tabela_hashing* tabela, int tamanho_tabela) {
  */
 Funcionario* alocar_funcionario(char* matricula,char* nome,char* funcao, float salario) {
     Funcionario* novo_funcionario = (Funcionario*)malloc(sizeof(Funcionario));
-    if (!novo_funcionario) {
-        fprintf(stderr, "Erro ao alocar memória para o funcionário.\n");
-        exit(EXIT_FAILURE);
+    if (novo_funcionario == NULL) {
+        printf("Erro ao alocar memória para o funcionário.\n");
+        
+    }else{
+            strncpy(novo_funcionario->matricula, matricula, TAM_MATRICULA);
+            novo_funcionario->matricula[TAM_MATRICULA] = '\0';
+            strncpy(novo_funcionario->nome, nome, sizeof(novo_funcionario->nome) - 1);
+            novo_funcionario->nome[sizeof(novo_funcionario->nome) - 1] = '\0';
+            strncpy(novo_funcionario->funcao, funcao, sizeof(novo_funcionario->funcao) - 1);
+            novo_funcionario->funcao[sizeof(novo_funcionario->funcao) - 1] = '\0';
+            novo_funcionario->salario = salario;
     }
-    strncpy(novo_funcionario->matricula, matricula, TAM_MATRICULA);
-    novo_funcionario->matricula[TAM_MATRICULA] = '\0';
-    strncpy(novo_funcionario->nome, nome, sizeof(novo_funcionario->nome) - 1);
-    novo_funcionario->nome[sizeof(novo_funcionario->nome) - 1] = '\0';
-    strncpy(novo_funcionario->funcao, funcao, sizeof(novo_funcionario->funcao) - 1);
-    novo_funcionario->funcao[sizeof(novo_funcionario->funcao) - 1] = '\0';
-    novo_funcionario->salario = salario;
+    
+  
     return novo_funcionario;
 }
 
+
 /**
- * @brief Calcula o valor de hash de uma matrícula utilizando rotação de caracteres.
+ * Função: hashing_rotacao
+ * Calcula um valor de hash baseado na rotação de caracteres de uma matrícula.
  *
- * Esta função realiza a rotação dos caracteres de uma matrícula, somando os dígitos
- * nas posições 2, 4 e 6 da matrícula rotacionada e calcula o valor de hash com base
- * no tamanho da tabela de hash fornecida.
+ * Parâmetros:
+ *  - matricula: uma string representando a matrícula a ser processada.
+ *  - tamanho_tabela: o tamanho da tabela de hash.
  *
- * @param matricula A string contendo a matrícula a ser processada. Deve ter pelo menos 6 caracteres.
- * @param tamanho_tabela O tamanho da tabela de hash.
- * @return O valor de hash calculado se a matrícula for válida, ou -1 se a matrícula for inválida.
+ * Retorna:
+ *  - Um valor inteiro representando o índice na tabela de hash.
+ *  - Retorna -1 se ocorrer algum erro no processamento.
+ *
+ * Descrição:
+ *  A função realiza uma rotação nos caracteres da matrícula, concatenando os dois últimos caracteres
+ *  com os quatro primeiros. Em seguida, calcula a soma dos caracteres nas posições 2, 4 e 6 da nova
+ *  string rotacionada, subtrai o valor ASCII do caractere '0' para obter os valores numéricos e calcula
+ *  o módulo dessa soma pelo tamanho da tabela de hash. O resultado é o índice na tabela de hash.
  */
 int hashing_rotacao(char *matricula, int tamanho_tabela) {
-    int resultado_final = 0;
-    int valido = 1;
+    int resultado_final = -1;
+   
+    char matricula_rotacionada[TAM_MATRICULA + 1]; 
+    strncpy(matricula_rotacionada, matricula + 4, 2); 
+    strncpy(matricula_rotacionada + 2, matricula, 4); 
+    matricula_rotacionada[6] = '\0';
 
-    int len = strlen(matricula);// só pra ver se ela ta no tamanho certinho 
-    if (len < 6) {
-        valido = 0;
-    }
-
-    if (valido) {
-       char matricula_rotacionada[10]; 
-       strcpy(matricula_rotacionada, matricula + 4);// aqui eu pego a matricula depois dos 4 primerios numeros 
-       strncat(matricula_rotacionada , matricula, 4);// aqui eu coloco eles no final 
-       int digitos_2_4_6 = (matricula_rotacionada[1] - '0') + (matricula_rotacionada[3] - '0') + (matricula_rotacionada[5] - '0');
-
-       resultado_final = digitos_2_4_6 % tamanho_tabela; 
-
-    }
-     
-    return valido ? resultado_final : -1;
+       
+        if (strlen(matricula_rotacionada) >= 6) {
+            int digitos_2_4_6 = (matricula_rotacionada[1] - '0') + (matricula_rotacionada[3] - '0') + (matricula_rotacionada[5] - '0');
+            resultado_final = digitos_2_4_6 % tamanho_tabela;
+        } 
+    return resultado_final; 
 }
+
 
 /**
  * @brief Calcula o índice de hash para uma matrícula utilizando a técnica de Fole Shift.
  *
  * Esta função recebe uma string de matrícula e o tamanho da tabela de hash, e calcula
- * um índice de hash baseado na soma de dígitos específicos da matrícula. Se a matrícula
- * tiver menos de 6 caracteres, a função retorna -1 indicando que a matrícula é inválida.
+ * um índice de hash baseado em uma combinação específica de dígitos da matrícula.
  *
- * @param matricula A string contendo a matrícula a ser processada. Deve ter pelo menos 6 caracteres.
+ * @param matricula Uma string representando a matrícula. Espera-se que a string tenha pelo menos 6 caracteres.
  * @param tamanho_tabela O tamanho da tabela de hash.
- * @return O índice de hash calculado se a matrícula for válida, ou -1 se a matrícula for inválida.
+ * @return O índice de hash calculado.
  */
 int Fole_shift(char *matricula, int tamanho_tabela) {
-    int resultado_final = 0;
-    int valido = 1;
+    int resultado_final = 0; 
 
-    int len = strlen(matricula); // só conferindo dnv
-    if (len < 6) {
-        valido = 0;
-    }
+    int digitos1_3_6 = (matricula[0] - '0') * 100 + (matricula[2] - '0')* 10 + (matricula[5] - '0');
+    int digitos2_4_5 = (matricula[1] - '0') * 100 + (matricula[3] - '0') * 10  + (matricula[4] - '0');
+    int soma  = digitos1_3_6 + digitos2_4_5;
+    resultado_final = soma % tamanho_tabela;
+    
 
-    if (valido) {
-        int digitos1_3_6 = (matricula[0] - '0') + (matricula[2] - '0') + (matricula[5] - '0');
-        int digitos2_4_5 = (matricula[1] - '0') + (matricula[3] - '0') + (matricula[4] - '0');
-        int soma  = digitos1_3_6 + digitos2_4_5;
-        resultado_final = soma % tamanho_tabela;
-    }
-
-    return valido ? resultado_final : -1;
+    return resultado_final;
 }
 
 /**
@@ -189,45 +187,34 @@ int Fole_shift(char *matricula, int tamanho_tabela) {
  */
 void inserir_na_tabela_hashing_rotacao_A(Tabela_hashing *tabela, Funcionario novo_funcionario, int tamanho_tabela) {
 
-    int posicao_inicial = hashing_rotacao(novo_funcionario.matricula, tamanho_tabela);
+    int posicao_inicial = hashing_rotacao(novo_funcionario.matricula, tamanho_tabela ) % tamanho_tabela;
     int inserido = 0;
 
-    // Verifica se a posição inicial é válida
-    if (posicao_inicial != -1) {
-        int posicao_atual = posicao_inicial;
-        int tentativa = 0;
-        int incremento = novo_funcionario.matricula[0] - '0';  
-        
-       
-       
+    int posicao = posicao_inicial;
+    int incremento = novo_funcionario.matricula[0] - '0';  
         if (incremento == 0) {
             incremento = 1;
         }
-
       
-        while (tentativa < tamanho_tabela && !inserido) {
-            // Se o espaço estiver vazio, insere o funcionário
-            if (tabela[posicao_atual].funcionairo == NULL) {
-                tabela[posicao_atual].funcionairo = alocar_funcionario(novo_funcionario.matricula, novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
-                inserido = 1;  // Marca como inserido
-            } else {
-                // Caso haja colisão, incrementa o número de colisões e faz a 
-                tabela[posicao_atual].colisoes++;
-                posicao_atual = (posicao_atual + incremento) % tamanho_tabela;  // Resolução de colisão com incremento
-            }
-            tentativa++;
+       do{
+        if (tabela[posicao].funcionairo == NULL)
+        {
+            inserido = 1; 
+            tabela[posicao].funcionairo = alocar_funcionario(novo_funcionario.matricula,  novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
+        }else{
+            tabela[posicao].colisoes ++;
+            posicao = ((posicao % tamanho_tabela) + incremento +1 );
         }
-
-        // Caso a inserção não tenha sido feita após todas as tentativas, substitui o funcionário na posição original
-        if (!inserido && tabela[posicao_inicial].funcionairo != NULL) {
-            // Libera a memória alocada e insere o novo funcionário
-            free(tabela[posicao_inicial].funcionairo); 
-            tabela[posicao_inicial].funcionairo = alocar_funcionario(novo_funcionario.matricula, novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
-        }
-    }
+        
+       } while (!inserido && posicao != posicao_inicial && posicao < tamanho_tabela);
+       
+       if (!inserido){
+        free(tabela[posicao_inicial].funcionairo); 
+        tabela[posicao_inicial].funcionairo = alocar_funcionario(novo_funcionario.matricula,  novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
+       }
+       
+       
 }
-
-
 
 /**
  * @brief Insere um novo funcionário na tabela de hashing utilizando a técnica de Fole Shift com passo 7.
@@ -242,29 +229,30 @@ void inserir_na_tabela_hashing_rotacao_A(Tabela_hashing *tabela, Funcionario nov
  * inicial é substituído pelo novo funcionário.
  */
 void inserir_fole_shift_B(Tabela_hashing *tabela, Funcionario novo_funcionario, int tamanho_tabela) {
-    int posicao_inicial = Fole_shift(novo_funcionario.matricula, tamanho_tabela);
+    int posicao_inicial = Fole_shift(novo_funcionario.matricula, tamanho_tabela) % tamanho_tabela;
     int inserido = 0;
-    // inserção foi concluída ou nem 
+    int posicao = posicao_inicial;
+    
+    do{
 
-    for (int tentativa = 0; tentativa < tamanho_tabela && !inserido; tentativa++) {
-        int posicao = (posicao_inicial + tentativa * 7) % tamanho_tabela;
+        if (tabela[posicao].funcionairo == NULL)
+        {
+            inserido = 1; 
+            tabela[posicao].funcionairo = alocar_funcionario(novo_funcionario.matricula,  novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
+        }else{
+            tabela[posicao].colisoes++; 
 
-        if (tabela[posicao].funcionairo == NULL) {
-          
-            tabela[posicao].funcionairo = alocar_funcionario(novo_funcionario.matricula, novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
-            inserido = 1; //concluída
-        } else {
-            tabela[posicao].colisoes++;
+            posicao = ((posicao % tamanho_tabela) +7 +1); 
+
         }
+        
+       
+    } while (!inserido && posicao != posicao_inicial && posicao < tamanho_tabela);
+    if (!inserido){
+        free(tabela[posicao_inicial].funcionairo); 
+        tabela[posicao_inicial].funcionairo = alocar_funcionario(novo_funcionario.matricula,  novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
     }
-
-    // Se a tabela estiver cheia
-    if (!inserido) {
-        if (tabela[posicao_inicial].funcionairo != NULL) {
-            free(tabela[posicao_inicial].funcionairo); 
-        }
-        tabela[posicao_inicial].funcionairo = alocar_funcionario(novo_funcionario.matricula, novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
-    }
+    
 }
 
 /**
@@ -282,7 +270,7 @@ void imprimir_estatisticas(Tabela_hashing* tabela, int tamanho_tabela) {
 
     for (int i = 0; i < tamanho_tabela; i++) {
         if (tabela[i].funcionairo != NULL) {
-           num_entradas ++;
+           num_entradas++;
         }
         num_colisoes += tabela[i].colisoes;
     }

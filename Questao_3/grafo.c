@@ -104,7 +104,7 @@ void exibir_Caminho(int *predecessor, int destino, double *des) {
     }
     printf("\nConfiabilidade total (logarítmica): %f\n", des[destino]);
     
-    // Exibe a confiabilidade total no formato normal (não logarítmico)
+
     double confiabilidade_total = exp(des[destino]);
     printf("Confiabilidade total (normal): %f\n", confiabilidade_total);
 }
