@@ -32,61 +32,91 @@ int main() {
 
         switch (opcao) {
             case 1: {
-                printf("\n>>> Hashing (a): Rotação A <<<\n");
+                printf("\n==== Hashing: rotação (A)====\n");
+                clock_t tempo_total = 0;
                 for (int t = 0; t < 2; t++) {
+                    
                     int tamanho_tabela = tamanhos[t];
                     printf("\nTabela Hash com %d posições:\n", tamanho_tabela);
 
                     Tabela_hashing* tabela_a = alocar_tabela(tamanho_tabela);
+                    clock_t inicio = clock();
                     for (int i = 0; i < QTD_FUNCIONARIOS; i++) {
                         inserir_na_tabela_hashing_rotacao_A(tabela_a, funcionarios[i], tamanho_tabela);
                     }
-
-                    
+                    clock_t fim = clock();
+                    tempo_total += (fim - inicio);
                     imprimir_estatisticas(tabela_a, tamanho_tabela);
+                    printf("Tempo para inserção: %f segundos\n", ((double)tempo_total / CLOCKS_PER_SEC));
                     desalocar_tabela(tabela_a, tamanho_tabela);
                 }
                 break;
             }
             case 2: {
-                printf("\n>>> Hashing (b): Fole Shift B <<<\n");
-                for (int t = 0; t < 2; t++) {
+                printf("\n====Hashing: fole shift (B)====\n");
+                clock_t tempo_total = 0;
+                for (int t = 0; t < 2; t++){
+
                     int tamanho_tabela = tamanhos[t];
                     printf("\nTabela Hash com %d posições:\n", tamanho_tabela);
-
-                  
                     Tabela_hashing* tabela_b = alocar_tabela(tamanho_tabela);
+                    clock_t inicio = clock();
+
                     for (int i = 0; i < QTD_FUNCIONARIOS; i++) {
                         inserir_fole_shift_B(tabela_b, funcionarios[i], tamanho_tabela);
                     }
 
-                  
+                    clock_t fim = clock();
+                    tempo_total += (fim - inicio);
+
                     imprimir_estatisticas(tabela_b, tamanho_tabela);
+                    printf("Tempo para inserção: %f segundos\n", ((double)tempo_total / CLOCKS_PER_SEC));
+
                     desalocar_tabela(tabela_b, tamanho_tabela);
                 }
                 break;
             }
             case 3: {
-                printf("\n>>> Resultados de ambos os métodos <<<\n");
+                printf("\n==== Resultados de ambos os métodos====\n");
+                clock_t tempo_total = 0;
+
                 for (int t = 0; t < 2; t++) {
+
                     int tamanho_tabela = tamanhos[t];
                     printf("\nTabela Hash com %d posições:\n", tamanho_tabela);
+                    printf("\n==== Hashing: rotação (A)====\n");
 
-                   
-                    printf("\n>>> Hashing (a): Rotação A <<<\n");
                     Tabela_hashing* tabela_a = alocar_tabela(tamanho_tabela);
+                    clock_t inicio = clock();
+
                     for (int i = 0; i < QTD_FUNCIONARIOS; i++) {
                         inserir_na_tabela_hashing_rotacao_A(tabela_a, funcionarios[i], tamanho_tabela);
                     }
+
+                    clock_t fim = clock();
+                    tempo_total += (fim - inicio);
+
                     imprimir_estatisticas(tabela_a, tamanho_tabela);
+                    printf("Tempo para inserção: %f segundos\n", ((double)tempo_total / CLOCKS_PER_SEC));
+
                     desalocar_tabela(tabela_a, tamanho_tabela);
 
-                    printf("\n>>> Hashing (b): Fole Shift B <<<\n");
+                    printf("\n====Hashing: fole shift (B)====\n");
+
+                    clock_t tempo_total = 0;
                     Tabela_hashing* tabela_b = alocar_tabela(tamanho_tabela);
+                    clock_t inicio = clock();
+
                     for (int i = 0; i < QTD_FUNCIONARIOS; i++) {
                         inserir_fole_shift_B(tabela_b, funcionarios[i], tamanho_tabela);
                     }
+
+                    clock_t fim = clock();
+                    tempo_total += (fim - inicio);
+
                     imprimir_estatisticas(tabela_b, tamanho_tabela);
+                    printf("Tempo para inserção: %f segundos\n", ((double)tempo_total / CLOCKS_PER_SEC));
+                    
                     desalocar_tabela(tabela_b, tamanho_tabela);
                 }
                 break;

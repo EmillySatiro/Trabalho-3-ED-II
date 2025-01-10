@@ -116,7 +116,6 @@ Funcionario* alocar_funcionario(char* matricula,char* nome,char* funcao, float s
     return novo_funcionario;
 }
 
-
 /**
  * Função: hashing_rotacao
  * Calcula um valor de hash baseado na rotação de caracteres de uma matrícula.
@@ -190,13 +189,15 @@ void inserir_na_tabela_hashing_rotacao_A(Tabela_hashing *tabela, Funcionario nov
     int posicao_inicial = hashing_rotacao(novo_funcionario.matricula, tamanho_tabela ) % tamanho_tabela;
     int inserido = 0;
 
+
     int posicao = posicao_inicial;
     int incremento = novo_funcionario.matricula[0] - '0';  
         if (incremento == 0) {
             incremento = 1;
         }
-      
+       
        do{
+       
         if (tabela[posicao].funcionairo == NULL)
         {
             inserido = 1; 
@@ -212,7 +213,6 @@ void inserir_na_tabela_hashing_rotacao_A(Tabela_hashing *tabela, Funcionario nov
         free(tabela[posicao_inicial].funcionairo); 
         tabela[posicao_inicial].funcionairo = alocar_funcionario(novo_funcionario.matricula,  novo_funcionario.nome, novo_funcionario.funcao, novo_funcionario.salario);
        }
-       
        
 }
 
