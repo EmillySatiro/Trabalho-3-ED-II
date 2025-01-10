@@ -103,19 +103,19 @@ int main() {
 
                     printf("\n====Hashing: fole shift (B)====\n");
 
-                    clock_t tempo_total = 0;
+                    clock_t tempo_total_2 = 0;
                     Tabela_hashing* tabela_b = alocar_tabela(tamanho_tabela);
-                    clock_t inicio = clock();
+                    clock_t inicio_2 = clock();
 
                     for (int i = 0; i < QTD_FUNCIONARIOS; i++) {
                         inserir_fole_shift_B(tabela_b, funcionarios[i], tamanho_tabela);
                     }
 
-                    clock_t fim = clock();
-                    tempo_total += (fim - inicio);
+                    clock_t fim_2 = clock();
+                    tempo_total_2 += (fim_2- inicio_2);
 
                     imprimir_estatisticas(tabela_b, tamanho_tabela);
-                    printf("Tempo para inserção: %f segundos\n", ((double)tempo_total / CLOCKS_PER_SEC));
+                    printf("Tempo para inserção: %f segundos\n", ((double)tempo_total_2 / CLOCKS_PER_SEC));
                     
                     desalocar_tabela(tabela_b, tamanho_tabela);
                 }
