@@ -24,7 +24,7 @@ int movimento_valido(Grafo *config1, Grafo *config2) {
         }
     }
     if (var_count > 1) {
-        valido = 0; //inválido
+        valido = 0; 
     } else {
         
         for (int i = 0; i < NUM_PINS; i++) {
@@ -51,16 +51,15 @@ int movimento_valido(Grafo *config1, Grafo *config2) {
  * Em seguida, preenche a matriz de adjacência verificando se o movimento entre dois estados é válido.
  */
 void gerar_grafo(Grafo *grafo, int matriz[][MAX_STATES]) {
-    // gerando o estado do bagulho
     for (int i = 0; i < MAX_STATES; i++) {
         int num = i;
         for (int disco = 0; disco < NUM_DISKS; disco++) {
-            grafo[i].estado[disco] = num % NUM_PINS + 1; //determina o pino do disco
-            num /= NUM_PINS;// move o disco
+            grafo[i].estado[disco] = num % NUM_PINS + 1; 
+            num /= NUM_PINS;
         }
     }
 
-    //  matriz de adjacência
+
     for (int x = 0; x < MAX_STATES; x++) {
         for (int y = 0; y < MAX_STATES; y++) {
             if (movimento_valido(&grafo[x], &grafo[y])) {
@@ -87,18 +86,18 @@ void gerar_grafo(Grafo *grafo, int matriz[][MAX_STATES]) {
  * que a menor distância restante seja infinita, indicando que os nós restantes são inacessíveis a partir do nó inicial.
  */
 void dijkstra(int inicio, int fim, int prev[], int dist[], int matriz[][MAX_STATES]) {
-    // Inicializa as distancias
+   
     for (int i = 0; i < MAX_STATES; i++) {
         prev[i] = -1;
-        dist[i] = INT_MAX; // infinito
+        dist[i] = INT_MAX; 
     }
 
     dist[inicio] = 0; 
-    bool visitado[MAX_STATES] = {false}; // já foram visitados
+    bool visitado[MAX_STATES] = {false}; 
 
-    // Laço principal para o algoritmo de Dijkstra
+    
     for (int i = 0; i < MAX_STATES; i++) {
-        // Encontra o nó n visitado com a menor distância
+       
         int u = -1;
         for (int j = 0; j < MAX_STATES; j++) {
             if (!visitado[j] && (u == -1 || dist[j] < dist[u])) {
@@ -106,19 +105,17 @@ void dijkstra(int inicio, int fim, int prev[], int dist[], int matriz[][MAX_STAT
             }
         }
 
-        // Se a distância mínima for infinita n tem caminho para o restante dos nós
+       
         if (dist[u] == INT_MAX) {
-            break; // Não precisa mais buscar caminhos
+            continue;
         }
 
-        visitado[u] = true; //  visitado
+        visitado[u] = true; 
 
-        // Atualiza as distancias dos vizinhos de u
-        for (int k = 0; k < MAX_STATES; k++) {
-            // Se uma aresta u -> k e k ainda n foi visitado
+
+        for (int k = 0; k < MAX_STATES; k++) { 
             if (matriz[u][k] != 0 && !visitado[k]) {
                 int alt = dist[u] + matriz[u][k];
-                // Se a distancia alternativa for menoratualiza
                 if (alt < dist[k]) {
                     dist[k] = alt;
                     prev[k] = u;
@@ -186,7 +183,6 @@ void mostrar_caminho(int inicio, int fim, int prev[], int dist[], Grafo *grafo) 
             caminho[ind++] = atual;
             atual = prev[atual];
         }
-        // mostrar da origem para o destino
         printf("Caminho: ");
         for (int i = ind - 1; i >= 0; i--) {
             printf("%d ", caminho[i]);
@@ -196,11 +192,11 @@ void mostrar_caminho(int inicio, int fim, int prev[], int dist[], Grafo *grafo) 
         }
         printf("\n");
 
-        // discos ao longo do caminho
+
         printf("Configuracoes dos discos ao longo do caminho:\n");
         for (int i = 0; i < ind; i++) {
             printf("Estado %d:\n", caminho[i]);
-            mostrar_estado(grafo[caminho[i]].estado);  // Exibe discos em cada estado
+            mostrar_estado(grafo[caminho[i]].estado);  
         }
     
     }
@@ -242,7 +238,7 @@ void bellman_ford(int inicio, int prev[], int dist[], int mat_adj[][MAX_STATES])
         
         
         if (!atualizado) {
-            break;
+            continue;
         }
     }
     for (int u = 0; u < MAX_STATES; u++) {

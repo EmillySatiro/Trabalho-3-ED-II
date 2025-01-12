@@ -150,7 +150,6 @@ int hashing_rotacao(char *matricula, int tamanho_tabela) {
     return resultado_final; 
 }
 
-
 /**
  * @brief Calcula o índice de hash para uma matrícula utilizando a técnica de Fole Shift.
  *
