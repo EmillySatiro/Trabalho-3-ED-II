@@ -3,15 +3,8 @@
 
 int main() {
     Grafo grafo;
-    int predecessor[NUM_VERTICES];
-    double distancia[NUM_VERTICES];
-    double menorValor = INFINITO_NEGATIVO;
+   
     int opcao;
-    // printf("\n======= Criando o grafo======:\n");
-    // printf("Qual a uantidade de vertices para o seu grafo!!\n");
-    // scanf("%d", &vertices);
-    // int predecessor[vertices];
-    // double distancia[vertices];
     do {
         printf("\n=======Menu de Operações========:\n");
         printf("1. Inicializar Grafo\n");
@@ -35,9 +28,26 @@ int main() {
                 printf("Arestas preenchidas aleatoriamente.\n");
                 break;
             case 4:
-                dijkstra(&grafo, 0, predecessor, distancia);
-                
-                exibir_Caminho(predecessor, 3, distancia);
+                int origem, destino;
+                printf("Digite o vértice de origem (0 a %d): ", NUM_VERTICES - 1);
+                scanf("%d", &origem);
+                printf("Digite o vértice de destino (0 a %d): ", NUM_VERTICES - 1);
+                scanf("%d", &destino);
+
+                if (origem < 0 || origem >= NUM_VERTICES || destino < 0 || destino >= NUM_VERTICES) {
+                    printf("Erro: Vértices inválidos. Tente novamente.\n");
+                }else{
+                    int predecessor[NUM_VERTICES];
+                    double distancia[NUM_VERTICES];
+
+                    dijkstra(&grafo, origem, predecessor, distancia);
+
+                    if (distancia[destino] == -INFINITY) {
+                        printf("Não há caminho confiável entre os vértices %d e %d.\n", origem, destino);
+                    } else {
+                        exibir_Caminho(predecessor, destino,&grafo);
+                    }
+                }
                 break;
             case 5:
                 printf("Saindo...\n");
