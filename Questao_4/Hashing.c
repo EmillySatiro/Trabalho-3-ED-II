@@ -40,7 +40,6 @@ void gerar_dados(Funcionario *dados, int qtd){
 
 }
 
-
 /**
  * @brief Aloca uma tabela de hashing com o tamanho especificado.
  *
@@ -191,9 +190,6 @@ void inserir_na_tabela_hashing_rotacao_A(Tabela_hashing *tabela, Funcionario nov
 
     int posicao = posicao_inicial;
     int incremento = novo_funcionario.matricula[0] - '0';  
-        if (incremento == 0) {
-            incremento = 1;
-        }
        
        do{
        

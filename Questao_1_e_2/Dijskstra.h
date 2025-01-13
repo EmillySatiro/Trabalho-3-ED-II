@@ -10,7 +10,7 @@
 
 
 #define NUM_PINS 3      
-#define NUM_DISKS 4       
+#define NUM_DISKS 3     
 #define MAX_STATES 81     //  (3^4 para 4 discos e 3 pinos)
 
 

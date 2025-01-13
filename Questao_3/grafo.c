@@ -110,23 +110,22 @@ void dijkstra(Grafo *grafo, int origem, int *predecessor, double *distancia) {
                 }
             }
 
-            if (verticeAtual == -1 || distancia[verticeAtual] == 0.0) {
-                continue;
-            }
+            if (verticeAtual != -1 || distancia[verticeAtual] != 0.0) {
+                visitado[verticeAtual] = true; 
 
-            visitado[verticeAtual] = true; 
+                for (int j = 0; j < NUM_VERTICES; j++) {
+                    if (grafo->arestas[verticeAtual][j].confiabilidade > 0.0) {
 
-            for (int j = 0; j < NUM_VERTICES; j++) {
-                if (grafo->arestas[verticeAtual][j].confiabilidade > 0.0) {
-
-                    double novaDistancia = distancia[verticeAtual] * grafo->arestas[verticeAtual][j].confiabilidade;
-            
-                    if (novaDistancia > distancia[j]) {
-                        distancia[j] = novaDistancia; 
-                        predecessor[j] = verticeAtual; 
+                        double novaDistancia = distancia[verticeAtual] * grafo->arestas[verticeAtual][j].confiabilidade;
+                
+                        if (novaDistancia > distancia[j]) {
+                            distancia[j] = novaDistancia; 
+                            predecessor[j] = verticeAtual; 
+                        }
                     }
                 }
             }
+
         }
     }
     

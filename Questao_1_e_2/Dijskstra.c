@@ -106,22 +106,22 @@ void dijkstra(int inicio, int fim, int prev[], int dist[], int matriz[][MAX_STAT
         }
 
        
-        if (dist[u] == INT_MAX) {
-            continue;
-        }
-
-        visitado[u] = true; 
+        if (dist[u] != INT_MAX) {
+            visitado[u] = true; 
 
 
-        for (int k = 0; k < MAX_STATES; k++) { 
-            if (matriz[u][k] != 0 && !visitado[k]) {
-                int alt = dist[u] + matriz[u][k];
-                if (alt < dist[k]) {
-                    dist[k] = alt;
-                    prev[k] = u;
+            for (int k = 0; k < MAX_STATES; k++) { 
+                if (matriz[u][k] != 0 && !visitado[k]) {
+                    int alt = dist[u] + matriz[u][k];
+                    if (alt < dist[k]) {
+                        dist[k] = alt;
+                        prev[k] = u;
+                    }
                 }
             }
         }
+
+        
     }
 }
 
